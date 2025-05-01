@@ -1,0 +1,238 @@
+---
+title: "Class_4"
+output: html_notebook
+---
+
+
+
+```{r}
+iris = read.csv('iris.csv')
+iris
+```
+#Boxplot
+
+```{r}
+library(ggplot2)
+ggplot(data = iris, aes(x= variety, y = sepal.length, fill = variety)) + 
+  geom_boxplot() +
+  labs(title = "This plot is created using ggplot",
+       x = "Class",
+       y = "Sepal Length",
+       caption = "Source: Iris dataset")
+```
+#Violin Plot
+```{r}
+ggplot(data = iris, aes(x= variety, y = sepal.length, fill = variety)) + 
+  geom_violin() +
+  labs(title = "This plot is created using ggplot",
+       x = "Class",
+       y = "Sepal Length",
+       caption = "Source: Iris dataset")
+```
+```{r}
+summary(iris)
+```
+#Correlation
+```{r}
+cor(iris$sepal.length, iris$sepal.width)
+```
+
+```{r}
+cor(iris$sepal.length, iris$sepal.length)
+```
+```{r}
+cor_matrix = cor(iris[ ,1:4])
+cor_matrix
+```
+```{r}
+library(ggcorrplot)
+ggcorrplot(cor_matrix)
+```
+```{r}
+ggcorrplot(cor_matrix, type = "lower")
+```
+```{r}
+ggcorrplot(cor_matrix, type = "upper")
+```
+```{r}
+ggcorrplot(cor_matrix, 
+           type = "lower",
+           colors = c("purple", "white", "red"))
+```
+```{r}
+ggcorrplot(cor_matrix, 
+           type = "lower",
+           colors = c("purple", "white", "red"),
+           lab = TRUE)
+```
+```{r}
+library(GGally)
+ggpairs(iris, aes(colour = variety))
+```
+#Interactive plots
+```{r}
+library(plotly)
+
+fig = iris %>%
+  plot_ly(y = ~sepal.length, type = 'violin')
+  
+fig
+```
+
+```{r}
+library(plotly)
+
+plot_ly(iris, y = ~sepal.length, type = 'violin')
+```
+```{r}
+plot_ly(iris, y = ~sepal.length, type = 'box')
+```
+
+
+```{r}
+plot_ly(iris, x = ~sepal.length, type = 'histogram')
+```
+
+```{r}
+plot_ly(iris, x = ~variety, y = ~ sepal.length, type = 'box')
+```
+
+#Principal Component Analysis (PCA)
+```{r}
+# dimension = axis = features
+library(stats)
+iris_pca = prcomp(iris[ , -5], scale = TRUE, center = TRUE)
+iris_pca
+```
+
+```{r}
+summary(iris_pca)
+```
+
+```{r}
+pc_12 = data.frame(iris_pca$x[ , 1:2])
+head(pc_12)
+```
+```{r}
+pc_12_class = cbind(pc_12, variety = iris$variety)
+pc_12_class
+```
+```{r}
+ggplot(pc_12_class, aes(PC1, PC2, color=variety)) + 
+  geom_point() + 
+  theme_minimal()
+```
+```{r}
+library(factoextra)
+fviz_eig(iris_pca, addlabels = TRUE)
+```
+```{r}
+fviz_pca_var(iris_pca,
+             col.var = "contrib")
+```
+
+```{r}
+library("corrplot")
+var = get_pca_var(iris_pca)
+corrplot(var$cos2)
+```
+
+```{r}
+fviz_pca_ind(iris_pca,
+             geom.ind = "point",
+             col.ind = iris$variety,
+             addEllipses = TRUE)
+```
+#Regression
+```{r}
+library(datasets)
+data(iris)
+
+lm_model = lm(Sepal.Length ~ Petal.Length, data = iris)
+summary(lm_model)
+```
+```{r}
+x = iris$Petal.Length
+y = iris$Sepal.Length
+
+plot(x, y)
+```
+
+```{r}
+pred = predict(lm_model)
+ix = sort(x, index.return = T)$ix # sort and return index not the acrtual values
+
+plot(x, y)
+lines(x[ix], pred[ix])
+```
+```{r}
+ggplot(iris, aes(x = Petal.Length, y=Sepal.Length)) + 
+  geom_point() +
+  geom_smooth(method = "lm", level = 0.95)
+```
+
+```{r}
+ggplot(iris, aes(x = Petal.Length, y=Sepal.Length,color=Species)) + 
+  geom_point() +
+  geom_smooth(method = "lm", level = 0.95)
+```
+
+```{r}
+ggplot(iris, aes(x = Petal.Length, y=Sepal.Length, color = Species)) + 
+  geom_point() +
+  geom_smooth(method = "lm", formula = y~poly(x, 2), level = 0.95)
+```
+#Clustering
+```{r}
+kmeans_result = kmeans(iris[ , 1:4], centers = 3 )
+kmeans_result
+```
+
+```{r}
+library(cluster)
+clusplot(iris, kmeans_result$cluster)
+```
+#Classification
+```{r}
+library(lattice)
+library(e1071)
+library(caret)
+
+train_ix = createDataPartition(iris$Species, p = 0.8, list = FALSE)
+train_data = iris[train_ix, ]
+test_data = iris[-train_ix, ]
+
+train_data
+```
+```{r}
+test_data
+```
+
+```{r}
+
+svm_model = svm(Species ~ Sepal.Length+Sepal.Width+Petal.Length, data = train_data, kernel = "linear")
+```
+
+```{r}
+test_data[20, ]
+```
+
+```{r}
+predict(svm_model, newdata = test_data[20, -5])
+```
+
+#onfusion metrix
+```{r}
+predictions = predict(svm_model, newdata = test_data)
+conf_max = confusionMatrix(predictions, test_data$Species)
+conf_max
+```
+```{r}
+cm = as.data.frame(conf_max$table)
+
+ggplot(cm, aes(Prediction, Reference, fill = Freq)) + 
+  geom_tile() +
+  geom_text(aes(label = Freq)) + 
+  scale_fill_gradient(low="white", high="skyblue")
+```
+
