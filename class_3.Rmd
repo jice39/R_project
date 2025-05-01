@@ -1,0 +1,205 @@
+---
+title: "Class_3"
+output: html_notebook
+---
+
+
+
+```{r}
+iris = read.csv('iris.csv')
+iris
+
+```
+
+#select a particular class
+
+```{r}
+setosa_data=iris[iris$variety== 'Setosa', ]
+setosa_data
+```
+
+
+```{r}
+setosa_data_sl_5 = setosa_data[setosa_data$sepal.length >= 5.0, ]
+setosa_data_sl_5
+
+```
+
+```{r}
+setosa_data_sl_5_pl_15 = setosa_data_sl_5[setosa_data_sl_5$petal.length >= 1.5, ]
+setosa_data_sl_5_pl_15
+```
+
+```{r}
+setosa_data_sl_5_pl_15 = setosa_data_sl_5_pl_15[ , c(1, 3, 4, 5)]#remove sepal length colm
+setosa_data_sl_5_pl_15
+```
+
+```{r}
+iris
+```
+
+#Plot
+
+```{r}
+#Scatter plot
+plot(iris$sepal.length, iris$sepal.width)
+
+```
+
+```{r}
+variety_color = as.numeric(factor(iris$variety))
+plot(iris$sepal.length, iris$sepal.width,col = variety_color)
+```
+
+```{r}
+variety_color = as.numeric(factor(iris$variety))
+plot(iris$sepal.length, iris$sepal.width,
+     col = variety_color,
+     pch = 3,
+     cex = 2,
+     xlim = c(2, 10),
+     ylim = c(1, 6),
+     xlab = substitute(paste(bold("Sepal Length"))) ,
+     ylab = "Sepal Width",
+     main = "Visualization of Sepal Length and Sepal Width",
+     
+     col.main = 'blue',
+     col.axis = 'red',
+     col.lab = 'green',
+     
+     cex.main = 1.5,
+     cex.axis = 2,
+     cex.lab = 1.5
+     )
+
+```
+
+#Line plot
+
+```{r}
+exam_score = data.frame(
+ID = c(1, 2, 3, 4, 5),
+Name = c("Alice", "Bob", "David", "John", "Jenny"),
+Age = c(20, 25, 30, 22, 18),
+score = c(100, 78, 90, 55, 81)
+)
+plot(exam_score$ID, exam_score$score, type = "l")
+
+```
+#Histogram plot
+```{r}
+hist(iris$sepal.width, main = "Histogram plot", xlab = "Sepal Length", col = "red")
+```
+#Box plot
+
+```{r}
+boxplot(iris$sepal.length, ylab = 'length' , xlab='Sepal', main='Box plot', col = 'green')
+```
+
+```{r}
+boxplot(iris$petal.length, ylab = 'length' , xlab='petal', main='Box plot', col = 'red')
+
+```
+#GGPLOT
+
+```{r}
+library(ggplot2)
+ggplot(iris,aes(x = sepal.length, y = sepal.width, color = variety))+geom_point(size=2)
+
+```
+#Color set
+```{r}
+ggplot(iris, aes(x = sepal.length, y = sepal.width, color = variety)) +
+geom_point(size = 2) +
+scale_color_manual(values = c("Setosa" = "blue", "Versicolor" = "pink", "Virginica" = "purple"))
+
+```
+#label
+```{r}
+ggplot(iris, aes(x = sepal.length, y = sepal.width, color = variety)) +
+geom_point(size = 2) +
+scale_color_manual(values = c("Setosa" = "blue", "Versicolor" = "pink", "Virginica" = "purple")) +
+  
+labs(title = "This plot is created using ggplot",
+x = "Length",
+y = "Width",
+caption = "Source: Iris dataset")
+
+```
+#Theme
+```{r}
+ggplot(iris, aes(x = sepal.length, y = sepal.width, color = variety)) +
+geom_point(size = 2) +
+scale_color_manual(values = c("Setosa" = "blue", "Versicolor" = "pink", "Virginica" = "purple")) +
+  
+labs(title = "This plot is created using ggplot",
+x = "Length",
+y = "Width",
+caption = "Source: Iris dataset") +
+  
+theme_minimal() #transparent/white background
+```
+
+#Legend position
+```{r}
+ggplot(iris, aes(x = sepal.length, y = sepal.width, color = variety)) +
+geom_point(size = 2) +
+scale_color_manual(values = c("Setosa" = "blue", "Versicolor" = "pink", "Virginica" = "purple")) +
+labs(title = "This plot is created using ggplot",
+x = "Length",
+y = "Width",
+caption = "Source: Iris dataset") +
+theme(
+legend.position = "top", # top, left, right, bottom
+)
+```
+#Text
+```{r}
+ggplot(iris, aes(x = sepal.length, y = sepal.width, color = variety)) +
+geom_point(size = 2) +
+scale_color_manual(values = c("Setosa" = "blue", "Versicolor" = "pink", "Virginica" = "purple")) +
+labs(title = "This plot is created using ggplot",
+x = "Length",
+y = "Width",
+caption = "Source: Iris dataset") +
+theme(
+legend.position = "top", # top, left, right, bottom
+text = element_text(colour = 'black', size = 15),
+axis.text.x = element_text(color = "blue", size = 16),
+axis.text.y = element_text(color = "red", size = 12)
+)
+```
+#Image save
+```{r}
+scatter_plot = ggplot(iris, aes(x = sepal.length, y = sepal.width, color = variety)) +
+geom_point(size = 2) +
+scale_color_manual(values = c("Setosa" = "blue", "Versicolor" = "pink", "Virginica" = "purple")) +
+labs(title = "This plot is created using ggplot",
+x = "Length",
+y = "Width",
+caption = "Source: Iris dataset") +
+theme(
+legend.position = "top", # top, left, right, bottom
+text = element_text(colour = 'black', size = 15),
+axis.text.x = element_text(color = "blue", size = 16),
+axis.text.y = element_text(color = "red", size = 12)
+)
+scatter_plot
+
+```
+
+
+```{r}
+ggsave("scatter_plot_500dpi.png", plot=scatter_plot, dpi = 500)
+```
+#Boxplot
+```{r}
+ggplot(data = iris, aes(x= variety, y = sepal.length, fill = variety)) +
+geom_boxplot() +
+labs(title = "This plot is created using ggplot",
+x = "Class",
+y = "Sepal Length",
+caption = "Source: Iris dataset")
+```
+
